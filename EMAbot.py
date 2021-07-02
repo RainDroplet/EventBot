@@ -9,14 +9,6 @@ client = commands.Bot(command_prefix=",")
 # client events ------------------------------------------------------------------------------------------------------------
 
 @client.event
-# Allows the bot to announce the user and ping them for the rules page.
-async def on_member_join(member):
-    channel = member.guild.text_channels[0]
-    await channel.send(
-        f'Welcome to {member.guild.name}, {member.mention}!')
-
-
-@client.event
 # This will notify users that it is an invalid command and delete the messages
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
@@ -41,6 +33,10 @@ async def clr(ctx, *, arg):
         async for message in ctx.message.channel.history(limit=int(arg)+1):
             await message.delete()
     # This allows the bot to delete all messages in a channel specifically.
+
+@client.command()
+async def catch(ctx, arg1, arg2, arg3):
+    await ctx.send(f'{arg1}, {arg2}, {arg3}')
 
 # bot start up -----------------------------------------------------------------------------------------------------------
 
