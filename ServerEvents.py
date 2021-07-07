@@ -5,14 +5,26 @@ from typing import List
 
 def create_server_events(guildID):
 # Initial command to create an empty event file, needs to be called once per server by the admin.
-    serverEvents = {}
+    serverEvents = {
+        'BASE': {
+            'Owner':'discordID',
+            'Title':'title',
+            'Date': 'date',
+            'Time': 'time',
+            'Desc':'desc',
+            'Members':'[discordID]'
+        }
+    }
 
     save_server_event(guildID, serverEvents)
 
 def load_server_event(guildID):
 # This is to retrieve the JSON file that has all the events in a particular server.
     with open(f'./server_data/{guildID}.json', 'w') as fileIn:
-        return json.load(fileIn)
+        serverEvents = json.load(fileIn)
+        return serverEvents
+
+    
 
 def save_server_event(guildID, serverEvents):
 # This is to save the JSON file for all the events in a particular server.
@@ -25,7 +37,7 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
     print('server event loaded')
 
     newEvents = {
-        len(serverEvents)+1: {
+        len(serverEvents): {
             'Owner':discordID,
             'Title':title,
             'Date': date,
@@ -34,10 +46,11 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
             'Members':[discordID]
         }
     }
+
     print(newEvents)
 
-    serverEvents.update(newEvents)
-    print('server event updated')
+    serverEvents.append(newEvents)
+    print('server event appended')
 
     save_server_event(guildID,serverEvents)
     print('server event saved')
