@@ -2,6 +2,7 @@ import discord
 from discord import Embed
 from discord import client
 from discord.ext import commands
+import ServerEvents
 import random
 
 client = commands.Bot(command_prefix=",")
@@ -37,6 +38,19 @@ async def clr(ctx, *, arg):
 @client.command()
 async def catch(ctx, arg1, arg2, arg3):
     await ctx.send(f'{arg1}, {arg2}, {arg3}')
+
+# Host command ----------------------------------------------------------------------------------------------------------
+
+@client.command()
+async def host(ctx, title, date, time, desc):
+    print(f'{title}, {date}, {time}, {desc}')
+    await ServerEvents.add_server_event(guildID=ctx.guild.id, discordID=ctx.author.id, title=title, date=date, time=time, desc=desc)
+    print('new server event added')
+
+@client.command(aliases=['hostsetup'])
+async def host_setup(ctx):
+    await ServerEvents.create_server_events(ctx.guild.id)
+    print('created new server hosting json')
 
 # bot start up -----------------------------------------------------------------------------------------------------------
 
