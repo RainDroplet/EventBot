@@ -57,4 +57,4 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
 
 async def display_events(guildID):
     serverEvents = load_server_event(guildID=guildID)
-    await return serverEvents
+    return serverEvents

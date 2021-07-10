@@ -54,8 +54,9 @@ async def host_setup(ctx):
 
 @client.command(aliases=['display'])
 async def display_server_events(ctx):
-    serverEvents = ServerEvents.display_events(ctx.guild.id)
+    await serverEvents = ServerEvents.display_events(ctx.guild.id)
     print('pulled server events')
+    print(serverEvents)
 
     eventsEmbed = discord.Embed(
         title=f'Events for {ctx.guild.name}'
