@@ -4,6 +4,7 @@ from discord import client
 from discord.ext import commands
 import ServerEvents
 import random
+from os import path
 
 client = commands.Bot(command_prefix=",")
 
@@ -44,15 +45,20 @@ async def catch(ctx, arg1, arg2, arg3):
 @client.command()
 async def host(ctx, title, date, time, desc):
     print(f'{title}, {date}, {time}, {desc}')
+    await ctx.send('`Event added!`')
     await ServerEvents.add_server_event(guildID=ctx.guild.id, discordID=ctx.author.id, title=title, date=date, time=time, desc=desc)
     print('new server event added')
 
 @client.command(aliases=['hostsetup'])
 async def host_setup(ctx):
-    await ServerEvents.create_server_events(ctx.guild.id)
-    print('created new server hosting json')
+    if path.isfile(f'./server_data/{ctx.guild.id}.json'):
+        await ctx.send('`This server already has an event file!`')
+    else:
+        await ctx.send('`Host setup complete!`')
+        await ServerEvents.create_server_events(ctx.guild.id)
+        
 
-@client.command(aliases=['display'])
+""" @client.command(aliases=['display'])
 async def display_server_events(ctx):
     serverEvents = ServerEvents.display_events(ctx.guild.id)
     print('pulled server events')
@@ -71,7 +77,7 @@ async def display_server_events(ctx):
 
         eventsEmbed.add_field(name=eventTitle, value=(f'```DATE:{eventDate}\TIME:{eventTime}\nDescription:{eventDesc}\nowner:{ownerID.name}\n'))
 
-    await ctx.send(embed=eventsEmbed)
+    await ctx.send(embed=eventsEmbed) """
 
 
 # bot start up -----------------------------------------------------------------------------------------------------------
