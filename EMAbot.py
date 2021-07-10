@@ -52,6 +52,26 @@ async def host_setup(ctx):
     await ServerEvents.create_server_events(ctx.guild.id)
     print('created new server hosting json')
 
+@client.command(aliases=['display'])
+async def display_server_events(ctx):
+    serverEvents = ServerEvents.display_events(ctx.guild.id)
+    print('pulled server events')
+
+    eventsEmbed = discord.Embed(
+        title=f'Events for {ctx.guild.name}'
+    )
+
+    for eventKey in serverEvents:
+        event = serverEvents[eventKey]
+        eventTitle = event['Title']
+        eventDate = event['Date']
+        eventTime = event['Time']
+        eventDesc = event['Desc']
+        ownerID = client.get_user(event['Owner'])
+
+        eventsEmbed.add_field(name=eventTitle, value=(f'```DATE:{eventDate}\TIME:{eventTime}\nDescription:{eventDesc}\nowner:{ownerID.name}\n'))
+
+    await ctx.send(embed=eventsEmbed)
 
 
 # bot start up -----------------------------------------------------------------------------------------------------------
@@ -66,4 +86,3 @@ if __name__ == '__main__':
 
 # This bot has to be an admin for all of the features to be working. Meaning that ONLY server owners can add this bot to their servers.
 # URL to add the bot https://discord.com/api/oauth2/authorize?client_id=857316901997641758&permissions=8&scope=bot
-    
