@@ -1,12 +1,4 @@
 {
-  "BASE": {
-    "Owner": "discordID",
-    "Title": "title",
-    "Date": "date",
-    "Time": "time",
-    "Desc": "desc",
-    "Members": "[discordID]"
-  },
   "1": {
     "Owner": 143866534866059264,
     "Title": "Event of fun",

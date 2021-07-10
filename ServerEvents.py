@@ -37,8 +37,12 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
     print(serverEvents)
     print('server event loaded')
 
+    if 'BASE' in serverEvents:
+        del serverEvents['BASE']
+        print('BASE found and deleted from Server Events')
+
     newEvents = {
-        int(len(serverEvents)): {
+        len(serverEvents)+1: {
             'Owner':discordID,
             'Title':title,
             'Date':date,

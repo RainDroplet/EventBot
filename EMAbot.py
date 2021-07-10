@@ -52,6 +52,8 @@ async def host_setup(ctx):
     await ServerEvents.create_server_events(ctx.guild.id)
     print('created new server hosting json')
 
+
+
 # bot start up -----------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
