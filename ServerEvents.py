@@ -1,11 +1,12 @@
 import json
-import os.path
-from os import path
-from typing import List
+import os
 
-def create_server_events(guildID):
+dirPath = os.getcwd()
+
+async def create_server_events(guildID):
 # Initial command to create an empty event file, needs to be called once per server by the admin.
     serverEvents = {
+        'Event Counter': 0,
         'BASE': {
             'Owner':'discordID',
             'Title':'title',
@@ -20,7 +21,7 @@ def create_server_events(guildID):
 
 def load_server_event(guildID):
 # This is to retrieve the JSON file that has all the events in a particular server.
-    with open(f'./server_data/{guildID}.json', 'r') as fileIn:
+    with open(f'{dirPath}/server_data/{guildID}.json', 'r') as fileIn:
         serverEvents = json.load(fileIn)
         return serverEvents
 
@@ -28,7 +29,7 @@ def load_server_event(guildID):
 
 def save_server_event(guildID, serverEvents):
 # This is to save the JSON file for all the events in a particular server.
-    with open(f'./server_data/{guildID}.json', 'w') as fileOut:
+    with open(f'{dirPath}/server_data/{guildID}.json', 'w') as fileOut:
         json.dump(serverEvents, fileOut, indent=2)
 
 async def add_server_event(guildID, discordID, title, date, time, desc):
@@ -39,8 +40,11 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
     if 'BASE' in serverEvents:
         del serverEvents['BASE']
         # print('BASE found and deleted from Server Events')
+
+    serverEvents['Event Counter'] = int(serverEvents['Event Counter'])+1
+    
     newEvents = {
-        len(serverEvents)+1: {
+        serverEvents['Event Counter']: {
             'Owner':discordID,
             'Title':title,
             'Date':date,
