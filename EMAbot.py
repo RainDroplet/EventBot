@@ -1,6 +1,7 @@
 import discord
 from discord import Embed
 from discord import client
+from discord import message
 from discord.ext import commands
 import ServerEvents
 import random
@@ -54,9 +55,7 @@ async def host_setup(ctx):
 
 @client.command(aliases=['display'])
 async def display_server_events(ctx):
-    await serverEvents = ServerEvents.display_events(ctx.guild.id)
-    print('pulled server events')
-    print(serverEvents)
+    serverEvents = await ServerEvents.display_events(ctx.guild.id)
 
     eventsEmbed = discord.Embed(
         title=f'Events for {ctx.guild.name}'
@@ -68,11 +67,31 @@ async def display_server_events(ctx):
         eventDate = event['Date']
         eventTime = event['Time']
         eventDesc = event['Desc']
-        ownerID = client.get_user(event['Owner'])
+        eventOwner = await client.fetch_user(int(event['Owner']))
 
-        eventsEmbed.add_field(name=eventTitle, value=(f'```DATE:{eventDate}\TIME:{eventTime}\nDescription:{eventDesc}\nowner:{ownerID.name}\n'))
+        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
 
     await ctx.send(embed=eventsEmbed)
+
+@client.command(aliases=['events'])
+async def direct_message_server_events(ctx):
+    serverEvents = await ServerEvents.display_events(ctx.guild.id)
+
+    eventsEmbed = discord.Embed(
+        title=f'Events for {ctx.guild.name}'
+    )
+
+    for eventKey in serverEvents:
+        event = serverEvents[eventKey]
+        eventTitle = event['Title']
+        eventDate = event['Date']
+        eventTime = event['Time']
+        eventDesc = event['Desc']
+        eventOwner = await client.fetch_user(int(event['Owner']))
+
+        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+
+    await ctx.author.send(embed=eventsEmbed)
 
 
 # bot start up -----------------------------------------------------------------------------------------------------------
