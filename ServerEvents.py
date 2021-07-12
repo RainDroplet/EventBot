@@ -58,3 +58,19 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
 async def display_events(guildID):
     serverEvents = load_server_event(guildID=guildID)
     return serverEvents
+
+def join_server_event(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents[eventID]['Members'].append(discordID)
+    save_server_event(guildID, serverEvents)
+
+async def join_server_event_check(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    # print(serverEvents)
+    # print(f'{eventID}, {type(eventID)}')
+    # print(type(serverEvents[eventID]['Members']))
+    checker = discordID in serverEvents[eventID]['Members']
+    # print(checker)
+    return checker

@@ -73,8 +73,9 @@ async def display_server_events(ctx):
         eventTime = event['Time']
         eventDesc = event['Desc']
         eventOwner = await client.fetch_user(int(event['Owner']))
+        eventMemberSize = len(event['Members'])
 
-        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
 
     await ctx.send(embed=eventsEmbed)
 
@@ -93,10 +94,25 @@ async def direct_message_server_events(ctx):
         eventTime = event['Time']
         eventDesc = event['Desc']
         eventOwner = await client.fetch_user(int(event['Owner']))
+        eventMemberSize = len(event['Members'])
 
-        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
 
     await ctx.author.send(embed=eventsEmbed)
+
+@client.command(aliases=['join'])
+async def join_server_event(ctx, eventID):
+    print('join command used')
+    eventBoolean = await ServerEvents.join_server_event_check(ctx.guild.id, ctx.author.id, eventID)
+    print('pulled boolean')
+
+    if eventBoolean:
+        #if this is true then they are in the list already.
+        await ctx.send('`You\'re already in the event!`')
+    else:
+        #they should join the event
+        await ctx.send('`Successfully joined the event!`')
+        await ServerEvents.join_server_event(ctx.guild.id, ctx.author.id, eventID)
 
 
 # bot start up -----------------------------------------------------------------------------------------------------------
