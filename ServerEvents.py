@@ -24,6 +24,8 @@ def load_server_event(guildID):
         serverEvents = json.load(fileIn)
         return serverEvents
 
+    
+
 def save_server_event(guildID, serverEvents):
 # This is to save the JSON file for all the events in a particular server.
     with open(f'./server_data/{guildID}.json', 'w') as fileOut:
@@ -53,6 +55,6 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
     save_server_event(guildID,serverEvents)
     # print('server event saved')
 
-""" async def display_events(guildID):
+async def display_events(guildID):
     serverEvents = load_server_event(guildID=guildID)
-    await return serverEvents """
+    return serverEvents
