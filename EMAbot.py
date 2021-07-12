@@ -114,6 +114,14 @@ async def join_server_event(ctx, eventID):
         await ctx.send('`Successfully joined the event!`')
         await ServerEvents.join_server_event(ctx.guild.id, ctx.author.id, eventID)
 
+@client.command(aliases=['cancel'])
+async def cancel_server_event(ctx, eventID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        await ServerEvents.cancel_server_event(ctx.guild.id, ctx.author.id, eventID)
+        await ctx.send('`Event `'+ str(eventID) +'` deleted.`')
+    else:
+        await ctx.send('`Error: You are not the event host.`')
 
 # bot start up -----------------------------------------------------------------------------------------------------------
 
