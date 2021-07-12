@@ -3,6 +3,9 @@ from discord import client
 from discord.ext import commands
 import ServerEvents
 from os import path
+import os
+
+dirPath = os.getcwd()
 
 client = commands.Bot(command_prefix=",")
 
@@ -84,7 +87,7 @@ async def schedule_update(ctx):
 
 @client.command(aliases=['hostsetup'])
 async def host_setup(ctx):
-    if path.isfile(f'./server_data/{ctx.guild.id}.json'):
+    if path.isfile(f'{dirPath}/server_data/{ctx.guild.id}.json'):
         await ctx.send('`This server already has an event file!`')
     else:
         await ctx.send('`Host setup complete!`')
