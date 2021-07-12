@@ -40,11 +40,11 @@ async def add_server_event(guildID, discordID, title, date, time, desc):
 # Things to keep in mind are that should be able to .update the dictionary and possible check if there is already a file that has their guildID in it. 
 # Therefore there should be no need for a called once create_sever_events as a bot command.
     serverEvents = load_server_event(guildID)
-    print(serverEvents)
-    print('server event loaded')
+    #print(serverEvents)
+    #print('server event loaded')
     if 'BASE' in serverEvents:
         del serverEvents['BASE']
-        print('BASE found and deleted from Server Events')
+        #print('BASE found and deleted from Server Events')
     newEvents = {
         len(serverEvents)+1: {
             'Owner':discordID,
