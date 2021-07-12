@@ -137,6 +137,7 @@ async def who_is_in_event(ctx, eventID):
 
     eventMembersList = []
     eventMemberSize = len(serverEvents[eventID]['Members'])
+    eventOwner = await client.fetch_user(int(serverEvents[eventID]['Owner']))
     # print(eventMembersList)
     eventTitle = serverEvents[eventID]['Title']
 
@@ -146,7 +147,7 @@ async def who_is_in_event(ctx, eventID):
 
     # print(eventMembersList)
 
-    eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<MemberCount: {eventMemberSize}>\n<MemberList: {eventMembersList}>```'), inline=False)
+    eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventID}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<MemberList: {eventMembersList}>```'), inline=False)
 
     await ctx.author.send(embed=eventsEmbed)
         
