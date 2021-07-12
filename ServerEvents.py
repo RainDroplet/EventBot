@@ -95,3 +95,9 @@ async def check_event_owner(guildID, discordID, eventID):
         return True
     else:
         return False
+def leave_server_event(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents[eventID]['Members'].remove(discordID)
+    save_server_event(guildID, serverEvents)
+
