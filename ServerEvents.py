@@ -74,3 +74,10 @@ async def join_server_event_check(guildID, discordID, eventID):
     checker = discordID in serverEvents[eventID]['Members']
     # print(checker)
     return checker
+
+def leave_server_event(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents[eventID]['Members'].remove(discordID)
+    save_server_event(guildID, serverEvents)
+
