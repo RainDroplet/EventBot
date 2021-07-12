@@ -122,6 +122,18 @@ async def cancel_server_event(ctx, eventID):
         await ctx.send('`Event `'+ str(eventID) +'` deleted.`')
     else:
         await ctx.send('`Error: You are not the event host.`')
+
+@client.command(aliases=['remove'])
+async def remove_event_member(ctx, eventID, discordID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        if str(ctx.author.id) == str(discordID):   
+            await ctx.send('`Cannot remove yourself from event. If you wish to delete the event use the ,cancel command`')
+        else:
+            await ServerEvents.remove_event_member(ctx.guild.id, discordID, eventID)
+            await ctx.send(discordID+ '` removed from event.`')
+    else:
+        await ctx.send('`Error: You are not the event host.`')
         
 @client.command(aliases=['leave'])
 async def leave_server_event(ctx, eventID):
