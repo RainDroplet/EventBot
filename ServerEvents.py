@@ -101,3 +101,9 @@ def leave_server_event(guildID, discordID, eventID):
     serverEvents[eventID]['Members'].remove(discordID)
     save_server_event(guildID, serverEvents)
 
+async def remove_event_member(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents[eventID]['Members'].remove(int(discordID))
+    save_server_event(guildID, serverEvents)
+    return
