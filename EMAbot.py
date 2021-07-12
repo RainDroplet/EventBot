@@ -131,7 +131,8 @@ async def remove_event_member(ctx, eventID, discordID):
             await ctx.send('`Cannot remove yourself from event. If you wish to delete the event use the ,cancel command`')
         else:
             await ServerEvents.remove_event_member(ctx.guild.id, discordID, eventID)
-            await ctx.send(discordID+ '` removed from event.`')
+            user = await client.fetch_user(int(discordID))
+            await ctx.send(user.name+ '` removed from event.`')
     else:
         await ctx.send('`Error: You are not the event host.`')
         
