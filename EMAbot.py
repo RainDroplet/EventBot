@@ -1,11 +1,11 @@
 import discord
-from discord import Embed
 from discord import client
-from discord import message
 from discord.ext import commands
 import ServerEvents
-import random
 from os import path
+import os
+
+dirPath = os.getcwd()
 
 client = commands.Bot(command_prefix=",")
 
@@ -49,14 +49,55 @@ async def host(ctx, title, date, time, desc):
     await ctx.send('`Event added!`')
     await ServerEvents.add_server_event(guildID=ctx.guild.id, discordID=ctx.author.id, title=title, date=date, time=time, desc=desc)
     print('new server event added')
+    await schedule_update(ctx)
+
+@client.command()
+async def schedule(ctx):
+    await schedule_update(ctx)
+    # This command is for any users to forcefully update the schedule.
+
+async def schedule_update(ctx):
+    print('in the schedule update function')
+    channel = discord.utils.get(ctx.guild.text_channels, name='schedule')
+    async for message in channel.history(oldest_first=True):
+            await message.delete()
+    print(channel)
+    serverEvents = await ServerEvents.display_events(ctx.guild.id)
+    print(serverEvents)
+
+    eventsEmbed = discord.Embed(
+        title=f'Events for {ctx.guild.name}'
+    )
+
+    for eventKey in serverEvents:
+        if eventKey == 'Event Counter':
+            continue
+        else:
+            event = serverEvents[eventKey]
+            eventTitle = event['Title']
+            eventDate = event['Date']
+            eventTime = event['Time']
+            eventDesc = event['Desc']
+            eventOwner = await client.fetch_user(int(event['Owner']))
+            eventMemberSize = len(event['Members'])
+
+            eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+
+    await channel.send(embed=eventsEmbed)
 
 @client.command(aliases=['hostsetup'])
 async def host_setup(ctx):
-    if path.isfile(f'./server_data/{ctx.guild.id}.json'):
+    if path.isfile(f'{dirPath}/server_data/{ctx.guild.id}.json'):
         await ctx.send('`This server already has an event file!`')
     else:
         await ctx.send('`Host setup complete!`')
         await ServerEvents.create_server_events(ctx.guild.id)
+    
+    scheduleChannelCheck = discord.utils.get(ctx.guild.text_channels, name='schedule')
+    if scheduleChannelCheck is None:
+        channel = await ctx.guild.create_text_channel('schedule')
+        await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await channel.send('`New Schedule Channel created! Waiting for Events to update.`')
 
 @client.command(aliases=['display'])
 async def display_server_events(ctx):
@@ -67,17 +108,21 @@ async def display_server_events(ctx):
     )
 
     for eventKey in serverEvents:
-        event = serverEvents[eventKey]
-        eventTitle = event['Title']
-        eventDate = event['Date']
-        eventTime = event['Time']
-        eventDesc = event['Desc']
-        eventOwner = await client.fetch_user(int(event['Owner']))
-        eventMemberSize = len(event['Members'])
+        if eventKey == 'Event Counter':
+            continue
+        else:
+            event = serverEvents[eventKey]
+            eventTitle = event['Title']
+            eventDate = event['Date']
+            eventTime = event['Time']
+            eventDesc = event['Desc']
+            eventOwner = await client.fetch_user(int(event['Owner']))
+            eventMemberSize = len(event['Members'])
 
-        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
-
+            eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+    
     await ctx.send(embed=eventsEmbed)
+    await schedule_update(ctx)
 
 @client.command(aliases=['events'])
 async def direct_message_server_events(ctx):
@@ -88,17 +133,21 @@ async def direct_message_server_events(ctx):
     )
 
     for eventKey in serverEvents:
-        event = serverEvents[eventKey]
-        eventTitle = event['Title']
-        eventDate = event['Date']
-        eventTime = event['Time']
-        eventDesc = event['Desc']
-        eventOwner = await client.fetch_user(int(event['Owner']))
-        eventMemberSize = len(event['Members'])
+        if eventKey == 'Event Counter':
+            continue
+        else:
+            event = serverEvents[eventKey]
+            eventTitle = event['Title']
+            eventDate = event['Date']
+            eventTime = event['Time']
+            eventDesc = event['Desc']
+            eventOwner = await client.fetch_user(int(event['Owner']))
+            eventMemberSize = len(event['Members'])
 
-        eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
+            eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
 
     await ctx.author.send(embed=eventsEmbed)
+    await schedule_update(ctx)
 
 @client.command(aliases=['join'])
 async def join_server_event(ctx, eventID):
@@ -113,6 +162,8 @@ async def join_server_event(ctx, eventID):
         #they should join the event
         await ctx.send('`Successfully joined the event!`')
         await ServerEvents.join_server_event(ctx.guild.id, ctx.author.id, eventID)
+    
+    await schedule_update(ctx)
 
 @client.command(aliases=['cancel'])
 async def cancel_server_event(ctx, eventID):
@@ -147,6 +198,8 @@ async def leave_server_event(ctx, eventID):
     else:
         #they are not in the event
         await ctx.send('`You\'re not in the event!`')
+
+    await schedule_update(ctx)
 
 @client.command(aliases=['who'])
 async def who_is_in_event(ctx, eventID):
