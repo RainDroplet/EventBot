@@ -25,8 +25,6 @@ def load_server_event(guildID):
         serverEvents = json.load(fileIn)
         return serverEvents
 
-    
-
 def save_server_event(guildID, serverEvents):
 # This is to save the JSON file for all the events in a particular server.
     with open(f'{dirPath}/server_data/{guildID}.json', 'w') as fileOut:
@@ -79,9 +77,30 @@ async def join_server_event_check(guildID, discordID, eventID):
     # print(checker)
     return checker
 
+async def cancel_server_event(guildID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents.pop(eventID)
+    save_server_event(guildID,serverEvents)
+    return
+
+async def check_event_owner(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    if serverEvents[eventID]["Owner"] == discordID:
+        return True
+    else:
+        return False
+
 def leave_server_event(guildID, discordID, eventID):
     eventID = str(eventID)
     serverEvents = load_server_event(guildID)
     serverEvents[eventID]['Members'].remove(discordID)
     save_server_event(guildID, serverEvents)
 
+async def remove_event_member(guildID, discordID, eventID):
+    eventID = str(eventID)
+    serverEvents = load_server_event(guildID)
+    serverEvents[eventID]['Members'].remove(int(discordID))
+    save_server_event(guildID, serverEvents)
+    return
