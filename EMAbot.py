@@ -280,11 +280,12 @@ async def add_event_members(ctx, user: discord.User, eventID):
         else:
             
             await ServerEvents.join_server_event(ctx.guild.id,user.id,eventID)
+            await ctx.send(user.name + '` joined the event!`')
             print ("generating role")
             roleName = 'Event #' + str(eventID)
             role = discord.utils.get(ctx.guild.roles, name=roleName)
             await ctx.user.add_roles(role)
-            await ctx.send(user.name + '` joined the event!`')
+            
     else:
         await ctx.send('`Error: You are not the event host.`')
 
