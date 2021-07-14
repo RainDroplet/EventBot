@@ -208,7 +208,7 @@ async def cancel_server_event(ctx, eventID):
         await ServerEvents.cancel_server_event(ctx.guild.id, eventID)
         await ctx.send('`Event `'+ str(eventID) +'` deleted.`')
 
-        roleName = 'Event #' + str(eventID)
+        roleName = f'Event #{eventID}'
         role = discord.utils.get(ctx.guild.roles, name=roleName)
         try:
             await role.delete()
@@ -230,7 +230,7 @@ async def remove_event_member(ctx, user: discord.User, eventID):
             user = await client.fetch_user(int(user.id))
             await ctx.send(user.name+ '` removed from event.`')
 
-            roleName = 'Event #' + str(eventID)
+            roleName = f'Event #{eventID}'
             role = discord.utils.get(ctx.guild.roles, name=roleName)
             await ctx.user.remove_roles(role)
     else:
@@ -282,7 +282,7 @@ async def add_event_members(ctx, user: discord.User, eventID):
             await ServerEvents.join_server_event(ctx.guild.id,user.id,eventID)
             await ctx.send(user.name + '` joined the event!`')
             print ("generating role")
-            roleName = 'Event #' + str(eventID)
+            roleName = f'Event #{eventID}'
             role = discord.utils.get(ctx.guild.roles, name=roleName)
             await ctx.user.add_roles(role)
             
