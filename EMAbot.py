@@ -185,7 +185,7 @@ async def remove_event_member(ctx, eventID, discordID):
         else:
             await ServerEvents.remove_event_member(ctx.guild.id, discordID, eventID)
             user = await client.fetch_user(int(discordID))
-            await ctx.send(user.name+ '` removed from event.`')
+            await ctx.send(user.name + '` removed from event.`')
     else:
         await ctx.send('`Error: You are not the event host.`')
     
@@ -229,7 +229,33 @@ async def who_is_in_event(ctx, eventID):
     eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventID}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<MemberList: {eventMembersList}>```'), inline=False)
 
     await ctx.author.send(embed=eventsEmbed)
-        
+
+@client.command(aliases=['notify'])
+async def notify_event_members(ctx, eventID):
+    serverEvents = await ServerEvents.display_events(ctx.guild.id)
+    for memberID in serverEvents[eventID]['Members']:
+        user = await client.fetch_user(int(memberID))
+        await user.send('Event '+eventID + ' is starting in '+ctx.guild.name)
+
+@client.command(aliases=['add'])
+async def add_event_members(ctx, user: discord.User, eventID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        eventBoolean = await ServerEvents.join_server_event_check(ctx.guild.id, user.id, eventID)
+        if eventBoolean:
+            await ctx.send('`That user is already in the event!`')
+        else:
+            
+            await ServerEvents.join_server_event(ctx.guild.id,user.id,eventID)
+            print ("generating role")
+            roleName = 'Event #' + str(eventID)
+            role = discord.utils.get(ctx.guild.roles, name=roleName)
+            await ctx.user.add_roles(role)
+            await ctx.send(user.name + '` joined the event!`')
+    else:
+        await ctx.send('`Error: You are not the event host.`')
+
+    await schedule_update(ctx)
 # bot start up -----------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
