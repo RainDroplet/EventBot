@@ -49,21 +49,34 @@ async def host(ctx, title, date, time, desc):
     await ctx.send('`Event added!`')
     await ServerEvents.add_server_event(guildID=ctx.guild.id, discordID=ctx.author.id, title=title, date=date, time=time, desc=desc)
     print('new server event added')
+    serverEvents = await ServerEvents.display_events(ctx.guild.id)
+
+    roleName = 'Event #' + str(serverEvents['Event Counter'])
+    await ctx.guild.create_role(name=roleName)
+    role = discord.utils.get(ctx.guild.roles, name=roleName)
+    await ctx.author.add_roles(role)
+
     await schedule_update(ctx)
 
 @client.command()
 async def schedule(ctx):
+    scheduleChannelCheck = discord.utils.get(ctx.guild.text_channels, name='schedule')
+    if scheduleChannelCheck is None:
+        channel = await ctx.guild.create_text_channel('schedule')
+        await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await channel.send('`New Schedule Channel created! Waiting for Events to update.`')
+
     await schedule_update(ctx)
     # This command is for any users to forcefully update the schedule.
 
 async def schedule_update(ctx):
-    print('in the schedule update function')
+    #print('in the schedule update function')
     channel = discord.utils.get(ctx.guild.text_channels, name='schedule')
     async for message in channel.history(oldest_first=True):
             await message.delete()
-    print(channel)
+    #print(channel)
     serverEvents = await ServerEvents.display_events(ctx.guild.id)
-    print(serverEvents)
+    #print(serverEvents)
 
     eventsEmbed = discord.Embed(
         title=f'Events for {ctx.guild.name}'
@@ -122,7 +135,6 @@ async def display_server_events(ctx):
             eventsEmbed.add_field(name=eventTitle, value=(f'```md\n<EventID: {eventKey}>\n<Owner: {eventOwner.name}>\n<Participants: {eventMemberSize}>\n<DATE: {eventDate}>\n<TIME: {eventTime}>\n<Description:\n{eventDesc}>\n```'), inline=False)
     
     await ctx.send(embed=eventsEmbed)
-    await schedule_update(ctx)
 
 @client.command(aliases=['events'])
 async def direct_message_server_events(ctx):
@@ -162,35 +174,14 @@ async def join_server_event(ctx, eventID):
         #they should join the event
         await ctx.send('`Successfully joined the event!`')
         await ServerEvents.join_server_event(ctx.guild.id, ctx.author.id, eventID)
+
+    roleName = f'Event #{eventID}'
+    print(roleName)
+    role = discord.utils.get(ctx.guild.roles, name=roleName)
+    await ctx.author.add_roles(role)
     
     await schedule_update(ctx)
 
-@client.command(aliases=['cancel'])
-async def cancel_server_event(ctx, eventID):
-    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
-    if ownerStatus:
-        await ServerEvents.cancel_server_event(ctx.guild.id, eventID)
-        await ctx.send('`Event `'+ str(eventID) +'` deleted.`')
-    else:
-        await ctx.send('`Error: You are not the event host.`')
-    
-    await schedule_update(ctx)
-
-@client.command(aliases=['remove'])
-async def remove_event_member(ctx, eventID, discordID):
-    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
-    if ownerStatus:
-        if str(ctx.author.id) == str(discordID):   
-            await ctx.send('`Cannot remove yourself from event. If you wish to delete the event use the ,cancel command`')
-        else:
-            await ServerEvents.remove_event_member(ctx.guild.id, discordID, eventID)
-            user = await client.fetch_user(int(discordID))
-            await ctx.send(user.name+ '` removed from event.`')
-    else:
-        await ctx.send('`Error: You are not the event host.`')
-    
-    await schedule_update(ctx)
-        
 @client.command(aliases=['leave'])
 async def leave_server_event(ctx, eventID):
     eventBoolean = await ServerEvents.join_server_event_check(ctx.guild.id, ctx.author.id, eventID)
@@ -203,6 +194,48 @@ async def leave_server_event(ctx, eventID):
         #they are not in the event
         await ctx.send('`You\'re not in the event!`')
 
+    roleName = f'Event #{eventID}'
+    print(roleName)
+    role = discord.utils.get(ctx.guild.roles, name=roleName)
+    await ctx.author.remove_roles(role)
+
+    await schedule_update(ctx)
+
+@client.command(aliases=['cancel'])
+async def cancel_server_event(ctx, eventID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        await ServerEvents.cancel_server_event(ctx.guild.id, eventID)
+        await ctx.send('`Event `'+ str(eventID) +'` deleted.`')
+
+        roleName = 'Event #' + str(eventID)
+        role = discord.utils.get(ctx.guild.roles, name=roleName)
+        try:
+            await role.delete()
+        except:
+            print('Role does not exist. Unable to delete.')
+    else:
+        await ctx.send('`Error: You are not the event host.`')
+    
+    await schedule_update(ctx)
+
+@client.command(aliases=['remove'])
+async def remove_event_member(ctx, user: discord.User, eventID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        if str(ctx.author.id) == str(user.id):   
+            await ctx.send('`Cannot remove yourself from event. If you wish to delete the event use the ,cancel command`')
+        else:
+            await ServerEvents.remove_event_member(ctx.guild.id, user.id, eventID)
+            user = await client.fetch_user(int(user.id))
+            await ctx.send(user.name+ '` removed from event.`')
+
+            roleName = 'Event #' + str(eventID)
+            role = discord.utils.get(ctx.guild.roles, name=roleName)
+            await ctx.user.remove_roles(role)
+    else:
+        await ctx.send('`Error: You are not the event host.`')
+    
     await schedule_update(ctx)
 
 @client.command(aliases=['who'])
