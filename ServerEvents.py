@@ -61,11 +61,12 @@ async def display_events(guildID):
     serverEvents = load_server_event(guildID=guildID)
     return serverEvents
 
-def join_server_event(guildID, discordID, eventID):
+async def join_server_event(guildID, discordID, eventID):
     eventID = str(eventID)
     serverEvents = load_server_event(guildID)
     serverEvents[eventID]['Members'].append(discordID)
     save_server_event(guildID, serverEvents)
+    return
 
 async def join_server_event_check(guildID, discordID, eventID):
     eventID = str(eventID)
@@ -92,11 +93,12 @@ async def check_event_owner(guildID, discordID, eventID):
     else:
         return False
 
-def leave_server_event(guildID, discordID, eventID):
+async def leave_server_event(guildID, discordID, eventID):
     eventID = str(eventID)
     serverEvents = load_server_event(guildID)
     serverEvents[eventID]['Members'].remove(discordID)
     save_server_event(guildID, serverEvents)
+    return
 
 async def remove_event_member(guildID, discordID, eventID):
     eventID = str(eventID)
