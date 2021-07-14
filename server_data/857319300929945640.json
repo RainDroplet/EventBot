@@ -1,13 +1,11 @@
 {
-  "Event Counter": 1,
-  "1": {
+  "Event Counter": 2,
+  "2": {
     "Owner": 143866534866059264,
     "Title": "Event of Nothing",
     "Date": "2022/19/7",
     "Time": "9:00",
     "Desc": "Come here for nothing",
-    "Members": [
-      143866534866059264
-    ]
+    "Members": []
   }
 }

@@ -1,6 +1,7 @@
 import discord
 from discord import client
 from discord.ext import commands
+from discord.user import User
 import ServerEvents
 from os import path
 import os
@@ -232,10 +233,32 @@ async def remove_event_member(ctx, user: discord.User, eventID):
 
             roleName = f'Event #{eventID}'
             role = discord.utils.get(ctx.guild.roles, name=roleName)
-            await ctx.user.remove_roles(role)
+            member = await ctx.guild.fetch_member(int(user.id))
+            print(f'{member}, {role}, {roleName}, {user}, {user.name}, {user.discriminator}')
+            await member.remove_roles(role)
     else:
         await ctx.send('`Error: You are not the event host.`')
     
+    await schedule_update(ctx)
+
+@client.command(aliases=['add'])
+async def add_event_members(ctx, user: discord.User, eventID):
+    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
+    if ownerStatus:
+        eventBoolean = await ServerEvents.join_server_event_check(ctx.guild.id, user.id, eventID)
+        if eventBoolean:
+            await ctx.send('`That user is already in the event!`')
+        else:
+            
+            await ServerEvents.join_server_event(ctx.guild.id,user.id,eventID)
+            await ctx.send(user.name + '` joined the event!`')
+            roleName = f'Event #{eventID}'
+            role = discord.utils.get(ctx.guild.roles, name=roleName)
+            await user.add_roles(role)
+            
+    else:
+        await ctx.send('`Error: You are not the event host.`')
+
     await schedule_update(ctx)
 
 @client.command(aliases=['who'])
@@ -269,27 +292,6 @@ async def notify_event_members(ctx, eventID):
     for memberID in serverEvents[eventID]['Members']:
         user = await client.fetch_user(int(memberID))
         await user.send('Event '+eventID + ' is starting in '+ctx.guild.name)
-
-@client.command(aliases=['add'])
-async def add_event_members(ctx, user: discord.User, eventID):
-    ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
-    if ownerStatus:
-        eventBoolean = await ServerEvents.join_server_event_check(ctx.guild.id, user.id, eventID)
-        if eventBoolean:
-            await ctx.send('`That user is already in the event!`')
-        else:
-            
-            await ServerEvents.join_server_event(ctx.guild.id,user.id,eventID)
-            await ctx.send(user.name + '` joined the event!`')
-            print ("generating role")
-            roleName = f'Event #{eventID}'
-            role = discord.utils.get(ctx.guild.roles, name=roleName)
-            await ctx.user.add_roles(role)
-            
-    else:
-        await ctx.send('`Error: You are not the event host.`')
-
-    await schedule_update(ctx)
 # bot start up -----------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
