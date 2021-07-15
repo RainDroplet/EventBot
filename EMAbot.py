@@ -300,7 +300,7 @@ if __name__ == '__main__':
     # print('Setting discord status...')
     # This part of the code somehow bricks the bot???
 
-    client.run('ODU3MzE2OTAxOTk3NjQxNzU4.YNN0lQ.w2flxx5EDZpG8BlHiLqUd-Wg49g')
+    client.run('ODU3MzE2OTAxOTk3NjQxNzU4.YNN0lQ.mOa0AOrV5RvUYvAHgq-zIyYlRMk')
 
 # This bot has to be an admin for all of the features to be working. Meaning that ONLY server owners can add this bot to their servers.
 # URL to add the bot https://discord.com/api/oauth2/authorize?client_id=857316901997641758&permissions=8&scope=bot
