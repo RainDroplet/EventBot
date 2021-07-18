@@ -99,7 +99,7 @@ async def schedule_update(ctx):
 
     await channel.send(embed=eventsEmbed)
 
-@client.command(aliases=['hostsetup'])
+@client.command(aliases=['setup'])
 async def host_setup(ctx):
     if path.isfile(f'{dirPath}/server_data/{ctx.guild.id}.json'):
         await ctx.send('`This server already has an event file!`')
@@ -202,7 +202,7 @@ async def leave_server_event(ctx, eventID):
 
     await schedule_update(ctx)
 
-@client.command(aliases=['cancel'])
+@client.command(aliases=['close'])
 async def cancel_server_event(ctx, eventID):
     ownerStatus = await ServerEvents.check_event_owner(ctx.guild.id, ctx.author.id, eventID)
     if ownerStatus:
@@ -292,6 +292,13 @@ async def notify_event_members(ctx, eventID):
     for memberID in serverEvents[eventID]['Members']:
         user = await client.fetch_user(int(memberID))
         await user.send('Event '+eventID + ' is starting in '+ctx.guild.name)
+
+@client.command(aliases=['info'])
+async def command_info(ctx):
+    cmdInfo = discord.Embed(title=f'Info:')
+    cmdInfo.add_field(name="Commands:",value=(",host [Title] [Date] [Time] [Desc] - Creates an event with specified details.\n,schedule - Manually update the schedule channel.\n,display - Prints the current server schedule.\n,events - Similar to display; however, directly messages the schedule instead.\n,join [eventID] - Adds yourself to the specified event.\n,leave [eventID] - Remove yourself from the specified event.\n,close [eventID] - Deletes the specifed server event if the user is the creator of the event.\n,remove [@discordname] [eventID] - Removes the mentioned user from the specified event.\n,add [@discordname] [eventID] - Adds the mentioned user to the specified event.\n,who [eventID] - Lists the attendees of an event.\n,notify [eventID] - Notifies all members of an event that an event is starting."))
+    cmdInfo.add_field(name="Setup:", value= (",setup - Initial command to set up bot. Only needs to be ran once."))
+    await ctx.author.send(embed=cmdInfo)
 # bot start up -----------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
